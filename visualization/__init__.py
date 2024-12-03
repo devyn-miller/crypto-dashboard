@@ -1,3 +1,4 @@
+from typing import Dict, Any
 from .plotter import CryptoPlotter
 
 def plot_price_trend(historical_data: Dict[str, Any], symbol: str) -> None:

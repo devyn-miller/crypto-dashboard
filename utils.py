@@ -20,8 +20,15 @@ class Cache:
             "timestamp": time.time()
         }
 
-def format_price(price: float) -> str:
-    return f"${price:,.2f}"
+def format_price(price: float, prefix: str = '') -> str:
+    if price >= 1_000_000_000:  # Billions
+        return f"{prefix}{price / 1_000_000_000:.2f}B"
+    elif price >= 1_000_000:  # Millions
+        return f"{prefix}{price / 1_000_000:.2f}M"
+    elif price >= 1_000:  # Thousands
+        return f"{prefix}{price / 1_000:.2f}K"
+    else:
+        return f"{prefix}{price:.2f}"
 
 def format_timestamp(timestamp: int) -> str:
     return datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M:%S")
