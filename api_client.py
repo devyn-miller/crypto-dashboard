@@ -72,3 +72,58 @@ def get_global_stats() -> Optional[Dict[str, Any]]:
     except APIError as e:
         print(f"Error fetching global stats: {str(e)}")
         return None
+
+def get_top_gainers_and_losers(limit: int = 10) -> Optional[Dict[str, List[Dict[str, Any]]]]:
+    cache_key = "top_gainers_losers"
+    cached_data = cache.get(cache_key)
+    if cached_data:
+        return cached_data
+
+    try:
+        url = f"{BASE_URL}/top/totalvolfull"
+        params = {
+            "limit": limit * 2,  # Fetch extra to ensure we have enough after filtering
+            "tsym": "USD",
+            "api_key": API_KEY
+        }
+        data = handle_api_request(url, params)
+        
+        if "Data" in data:
+            coins = data["Data"]
+            # Sort by 24h change percentage
+            sorted_coins = sorted(coins, key=lambda x: float(x.get("RAW", {}).get("USD", {}).get("CHANGEPCT24HOUR", 0)))
+            
+            result = {
+                "gainers": sorted_coins[-limit:],
+                "losers": sorted_coins[:limit]
+            }
+            cache.set(cache_key, result, ttl_seconds=300)  # Cache for 5 minutes
+            return result
+        raise APIError("Invalid response format")
+    except APIError as e:
+        print(f"Error fetching top gainers and losers: {str(e)}")
+        return None
+
+def get_trending_cryptos(limit: int = 10) -> Optional[List[Dict[str, Any]]]:
+    cache_key = "trending_cryptos"
+    cached_data = cache.get(cache_key)
+    if cached_data:
+        return cached_data
+
+    try:
+        url = f"{BASE_URL}/top/totalvolfull"
+        params = {
+            "limit": limit,
+            "tsym": "USD",
+            "api_key": API_KEY
+        }
+        data = handle_api_request(url, params)
+        
+        if "Data" in data:
+            trending = data["Data"]
+            cache.set(cache_key, trending, ttl_seconds=300)  # Cache for 5 minutes
+            return trending
+        raise APIError("Invalid response format")
+    except APIError as e:
+        print(f"Error fetching trending cryptocurrencies: {str(e)}")
+        return None

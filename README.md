@@ -22,17 +22,17 @@ A real-time cryptocurrency tracking dashboard built with Python and Streamlit, u
 - 24-hour trading volume
 - Real-time market updates
 
-### 4. Price Alert System
+### 4. Top Gainers and Losers
 
-- Set custom price thresholds for cryptocurrencies
-- Automated monitoring of price movements
-- Alert notifications when thresholds are crossed
+- Display top 5 gaining cryptocurrencies in the last 24 hours
+- Display top 5 losing cryptocurrencies in the last 24 hours
+- Real-time percentage changes and current prices
 
-### 5. Data Caching
+### 5. Trending Cryptocurrencies
 
-- Efficient API usage with local caching
-- Configurable cache duration
-- Reduced API calls for better performance
+- Show top trending cryptocurrencies
+- Display current prices and 24-hour changes
+- Based on trading volume and market activity
 
 ## API Implementation
 
@@ -53,20 +53,15 @@ This project interfaces with the CryptoCompare API, implementing the following e
    - Gets global market statistics
    - Endpoint: `/data/global`
 
-4. `set_alert(symbol: str, high_threshold: float, low_threshold: float)`
+4. `get_top_gainers_and_losers(limit: int)`
 
-   - Sets price alerts for cryptocurrencies
-   - Local implementation with real-time monitoring
+   - Fetches top gaining and losing cryptocurrencies
+   - Endpoint: `/data/top/totalvolfull`
 
-5. `check_alerts(current_prices: Dict)`
+5. `get_trending_cryptos(limit: int)`
 
-   - Monitors and triggers price alerts
-   - Automated threshold checking
-
-6. `remove_alert(symbol: str)`
-
-   - Manages price alert removal
-   - Alert system maintenance
+   - Retrieves trending cryptocurrencies based on volume
+   - Endpoint: `/data/top/totalvolfull`
 
 ## Installation
 
@@ -117,7 +112,8 @@ streamlit run dashboard.py
    - Select cryptocurrencies from the sidebar
    - Choose your preferred timeframe
    - View real-time prices and charts
-   - Set up price alerts as needed
+   - Monitor top gainers and losers
+   - Track trending cryptocurrencies
 
 ## Project Structure
 
@@ -125,7 +121,6 @@ streamlit run dashboard.py
 crypto-dashboard/
 ├── dashboard.py          # Main Streamlit application
 ├── api_client.py         # CryptoCompare API interface
-├── price_alerts.py       # Price alert system
 ├── utils.py             # Helper functions
 ├── config.py            # Configuration settings
 ├── requirements.txt     # Project dependencies
