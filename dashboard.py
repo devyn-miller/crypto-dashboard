@@ -104,23 +104,19 @@ with col1:
             with col_gain:
                 st.markdown("### 🚀 Top Gainers")
                 for coin in gainers_losers['gainers']:
-                    change = coin['RAW']['USD']['CHANGEPCT24HOUR']
-                    price = coin['RAW']['USD']['PRICE']
                     st.metric(
-                        label=coin['CoinInfo']['Name'],
-                        value=f"{format_price(price, prefix='$')}",
-                        delta=f"{change:.2f}%"
+                        label=f"{coin['symbol']} ({coin['fullName']})",
+                        value=f"{format_price(coin['price'], prefix='$')}",
+                        delta=f"{coin['change24h']:.2f}%"
                     )
             
             with col_loss:
                 st.markdown("### 📉 Top Losers")
                 for coin in gainers_losers['losers']:
-                    change = coin['RAW']['USD']['CHANGEPCT24HOUR']
-                    price = coin['RAW']['USD']['PRICE']
                     st.metric(
-                        label=coin['CoinInfo']['Name'],
-                        value=f"{format_price(price, prefix='$')}",
-                        delta=f"{change:.2f}%"
+                        label=f"{coin['symbol']} ({coin['fullName']})",
+                        value=f"{format_price(coin['price'], prefix='$')}",
+                        delta=f"{coin['change24h']:.2f}%"
                     )
     except Exception as e:
         st.error(f"Error fetching top gainers and losers: {str(e)}")
@@ -161,12 +157,10 @@ with col2:
         trending = get_trending_cryptos(limit=5)
         if trending:
             for coin in trending:
-                price = coin['RAW']['USD']['PRICE']
-                change = coin['RAW']['USD']['CHANGEPCT24HOUR']
                 st.metric(
-                    label=f"{coin['CoinInfo']['Name']} ({coin['CoinInfo']['FullName']})",
-                    value=f"{format_price(price, prefix='$')}",
-                    delta=f"{change:.2f}%"
+                    label=f"{coin['symbol']} ({coin['fullName']})",
+                    value=f"{format_price(coin['price'], prefix='$')}",
+                    delta=f"{coin['change24h']:.2f}%"
                 )
         else:
             st.warning("Trending data not available")

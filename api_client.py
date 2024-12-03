@@ -80,7 +80,7 @@ def get_top_gainers_and_losers(limit: int = 10) -> Optional[Dict[str, List[Dict[
         return cached_data
 
     try:
-        url = f"{BASE_URL}/top/totalvolfull"
+        url = f"{BASE_URL}/top/mktcapfull"  # Changed to mktcapfull endpoint
         params = {
             "limit": limit * 2,  # Fetch extra to ensure we have enough after filtering
             "tsym": "USD",
@@ -89,15 +89,27 @@ def get_top_gainers_and_losers(limit: int = 10) -> Optional[Dict[str, List[Dict[
         data = handle_api_request(url, params)
         
         if "Data" in data:
-            coins = data["Data"]
+            coins = []
+            for coin_data in data["Data"]:
+                try:
+                    if "RAW" in coin_data and "USD" in coin_data["RAW"]:
+                        coins.append({
+                            "symbol": coin_data["CoinInfo"]["Name"],
+                            "fullName": coin_data["CoinInfo"]["FullName"],
+                            "price": coin_data["RAW"]["USD"]["PRICE"],
+                            "change24h": coin_data["RAW"]["USD"]["CHANGEPCT24HOUR"]
+                        })
+                except KeyError:
+                    continue
+
             # Sort by 24h change percentage
-            sorted_coins = sorted(coins, key=lambda x: float(x.get("RAW", {}).get("USD", {}).get("CHANGEPCT24HOUR", 0)))
+            sorted_coins = sorted(coins, key=lambda x: x["change24h"])
             
             result = {
                 "gainers": sorted_coins[-limit:],
                 "losers": sorted_coins[:limit]
             }
-            cache.set(cache_key, result, ttl_seconds=300)  # Cache for 5 minutes
+            cache.set(cache_key, result)
             return result
         raise APIError("Invalid response format")
     except APIError as e:
@@ -111,7 +123,7 @@ def get_trending_cryptos(limit: int = 10) -> Optional[List[Dict[str, Any]]]:
         return cached_data
 
     try:
-        url = f"{BASE_URL}/top/totalvolfull"
+        url = f"{BASE_URL}/top/mktcapfull"  # Changed to mktcapfull endpoint
         params = {
             "limit": limit,
             "tsym": "USD",
@@ -120,8 +132,20 @@ def get_trending_cryptos(limit: int = 10) -> Optional[List[Dict[str, Any]]]:
         data = handle_api_request(url, params)
         
         if "Data" in data:
-            trending = data["Data"]
-            cache.set(cache_key, trending, ttl_seconds=300)  # Cache for 5 minutes
+            trending = []
+            for coin_data in data["Data"]:
+                try:
+                    if "RAW" in coin_data and "USD" in coin_data["RAW"]:
+                        trending.append({
+                            "symbol": coin_data["CoinInfo"]["Name"],
+                            "fullName": coin_data["CoinInfo"]["FullName"],
+                            "price": coin_data["RAW"]["USD"]["PRICE"],
+                            "change24h": coin_data["RAW"]["USD"]["CHANGEPCT24HOUR"]
+                        })
+                except KeyError:
+                    continue
+            
+            cache.set(cache_key, trending)
             return trending
         raise APIError("Invalid response format")
     except APIError as e:

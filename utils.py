@@ -3,21 +3,22 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 
 class Cache:
-    def __init__(self, ttl_seconds: int = 300):  # 5 minutes default TTL
+    def __init__(self, default_ttl: int = 300):  # 5 minutes default TTL
         self.cache: Dict[str, Dict[str, Any]] = {}
-        self.ttl = ttl_seconds
+        self.default_ttl = default_ttl
 
     def get(self, key: str) -> Optional[Any]:
         if key in self.cache:
-            if time.time() - self.cache[key]["timestamp"] < self.ttl:
+            if time.time() - self.cache[key]["timestamp"] < self.cache[key]["ttl"]:
                 return self.cache[key]["data"]
             del self.cache[key]
         return None
 
-    def set(self, key: str, value: Any) -> None:
+    def set(self, key: str, value: Any, ttl_seconds: Optional[int] = None) -> None:
         self.cache[key] = {
             "data": value,
-            "timestamp": time.time()
+            "timestamp": time.time(),
+            "ttl": ttl_seconds if ttl_seconds is not None else self.default_ttl
         }
 
 def format_price(price: float, prefix: str = '') -> str:
